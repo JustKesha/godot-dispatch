@@ -29,12 +29,16 @@ signal input_submitted(text: String)
 	set(value):
 		output_text = value
 		set_output(output_text)
+@export var output_error_form: String = "ERROR: %s"
+@export var output_warning_form: String = "WARNING: %s"
 @export_group("Theme")
 @export var font_size: int = 16:
 	set(value):
 		font_size = value
 		_set_font_size(font_size)
 @export_subgroup("Colors", "color")
+@export var color_error: Color = Color.RED
+@export var color_warning: Color = Color.ORANGE
 @export var color_text: Color = Color.WHITE:
 	set(value):
 		color_text = value
@@ -141,6 +145,14 @@ func write(message: Variant, color: Color = color_text, end: String = "\n"):
 	if not output:
 		return
 	output.text += "[color=#%s]%s[/color]" % [color.to_html(), str(message) + end]
+
+
+func error(message: Variant):
+	write(output_error_form % str(message), color_error)
+
+
+func warning(message: Variant):
+	write(output_warning_form % str(message), color_warning)
 
 
 func read() -> String:
