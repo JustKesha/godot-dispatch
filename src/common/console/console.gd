@@ -93,7 +93,7 @@ func _set_background_color(color: Color):
 		background.color = color
 	
 	if output:
-		output.add_theme_color_override("font_selection_color", color)
+		output.add_theme_color_override("font_selected_color", color)
 	
 	if input:
 		input.add_theme_color_override("font_selected_color", color)
