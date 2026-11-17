@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://chjnhn0acb8rq"]
 
-[ext_resource type="Script" uid="uid://fqidfhdw0iyv" path="res://common/console/console.gd" id="1_p772f"]
+[ext_resource type="Script" uid="uid://fqidfhdw0iyv" path="res://common/terminal/terminal.gd" id="1_p772f"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_p772f"]
 
