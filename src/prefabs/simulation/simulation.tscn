@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://dvra2l6e7sgbl"]
+
+[ext_resource type="Script" uid="uid://cscu286kk27ft" path="res://prefabs/simulation/simulation.gd" id="1_2hwcn"]
+
+[node name="Simulation2D" type="Node2D" unique_id=123107321]
+script = ExtResource("1_2hwcn")
+
+[node name="Camera" type="Camera2D" parent="." unique_id=2033727596]
+unique_name_in_owner = true
+zoom = Vector2(3, 3)
+
+[node name="Devices" type="Node2D" parent="." unique_id=586907844]
+unique_name_in_owner = true
