@@ -1,3 +1,4 @@
+@icon("uid://dhivvk11px2tj")
 class_name Console
 extends Container
 
@@ -24,13 +25,14 @@ signal input_submitted(text: String)
 	set(value):
 		input_placeholder_opacity = value
 		_set_color(color_text)
-@export_group("Ouput", "output")
+@export_group("Output", "output")
 @export_multiline var output_text: String:
 	set(value):
 		output_text = value
 		set_output(output_text)
 @export var output_error_form: String = "ERROR: %s"
 @export var output_warning_form: String = "WARNING: %s"
+@export var output_success_form: String = "SUCCESS: %s"
 @export_group("Theme")
 @export var font_size: int = 16:
 	set(value):
@@ -39,6 +41,7 @@ signal input_submitted(text: String)
 @export_subgroup("Colors", "color")
 @export var color_error: Color = Color.RED
 @export var color_warning: Color = Color.ORANGE
+@export var color_success: Color = Color.GREEN
 @export var color_text: Color = Color.WHITE:
 	set(value):
 		color_text = value
@@ -155,6 +158,10 @@ func warning(message: Variant):
 	write(output_warning_form % str(message), color_warning)
 
 
+func success(message: Variant):
+	write(output_success_form % str(message), color_success)
+
+
 func read() -> String:
 	return output.text if output else ""
 
@@ -163,10 +170,9 @@ func clear():
 	if not output:
 		return
 	output.text = ""
-	input.text = ""
 
 
-func sumbit(message: Variant = ""):
+func submit(message: Variant = ""):
 	if message == "":
 		message = input.text
 	_on_input_text_submitted(message)
