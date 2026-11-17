@@ -11,8 +11,8 @@ extends Resource
 @export var requires_terminal: bool = false
 @export_range(0, 100, 1) var requires_arguments: int
 @export_group("Execution Time", "execution_time")
-@export_range(0.0, 60.0, 0.1) var execution_time_min: float = 0.0
-@export_range(0.0, 60.0, 0.1) var execution_time_max: float = 0.0
+@export_range(0.0, 60.0, 0.01) var execution_time_min: float = 0.0
+@export_range(0.0, 60.0, 0.01) var execution_time_max: float = 0.0
 
 var execution_time: float:
 	set(value):

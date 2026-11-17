@@ -16,18 +16,8 @@ func _on_device_not_found(shell: Shell, item: Variant, io: Terminal = null):
 
 func _process_device(shell: Shell, device: Device2D, io: Terminal = null) -> bool:
 	await sleep(shell)
-	if io: io.write(_get_target_info(device, io))
+	if io: io.success("Pinged %s [%s]." % [
+		device.name,
+		"LIVE" if device.enabled else "[color=#%s]DISABLED[/color]" % io.color_error.to_html(),
+		])
 	return true
-
-
-func _get_target_info(device: Device2D, io: Terminal) -> String:
-	var sections: Array[String]
-	
-	sections.append("TARGET: " + device.name)
-	sections.append("STATUS: " + (
-		"[color=%s]LIVE[/color]" % io.color_success
-		if device.enabled else
-		"[color=%s]DISABLED[/color]" % io.color_error
-		))
-	
-	return "\n".join(sections)
