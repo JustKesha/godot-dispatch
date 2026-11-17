@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ShellCommandClear" format=3 uid="uid://cknovav8bifxk"]
+
+[ext_resource type="Script" uid="uid://y2aolmi7osso" path="res://prefabs/shell/commands/clear.gd" id="1_rmcvg"]
+
+[resource]
+script = ExtResource("1_rmcvg")
+description = "Clears the terminal output."
+requires_terminal = true
+metadata/_custom_type_script = "uid://y2aolmi7osso"

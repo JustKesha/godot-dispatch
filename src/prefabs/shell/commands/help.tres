@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ShellCommandHelp" format=3 uid="uid://bxf2qplu0l6a5"]
+
+[ext_resource type="Script" uid="uid://dnt3sji7vcp1c" path="res://prefabs/shell/commands/help.gd" id="1_hr3gr"]
+
+[resource]
+script = ExtResource("1_hr3gr")
+description = "Outputs available terminal commands."
+requires_terminal = true
+metadata/_custom_type_script = "uid://dnt3sji7vcp1c"
