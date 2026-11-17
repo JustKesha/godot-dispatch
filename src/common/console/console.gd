@@ -5,6 +5,10 @@ extends Container
 
 signal output_changed(text: String)
 signal input_submitted(text: String)
+signal new_error_message(raw: String)
+signal new_warning_message(raw: String)
+signal new_success_message(raw: String)
+signal new_message(raw: String)
 
 @export_group("Input", "input")
 @export var input_text: String:
@@ -30,9 +34,14 @@ signal input_submitted(text: String)
 	set(value):
 		output_text = value
 		set_output(output_text)
-@export var output_error_form: String = "ERROR: %s"
-@export var output_warning_form: String = "WARNING: %s"
-@export var output_success_form: String = "SUCCESS: %s"
+@export_subgroup("Format", "output_format")
+@export var output_format_error: String = "ERROR: %s"
+@export var output_format_warning: String = "WARNING: %s"
+@export var output_format_success: String = "SUCCESS: %s"
+@export_subgroup("Ignore", "output_ignore")
+@export var output_ignore_error: bool
+@export var output_ignore_warning: bool
+@export var output_ignore_success: bool
 @export_group("Theme")
 @export var font_size: int = 16:
 	set(value):
@@ -147,19 +156,33 @@ func add_input(content: Variant):
 func write(message: Variant, color: Color = color_text, end: String = "\n"):
 	if not output:
 		return
-	output.text += "[color=#%s]%s[/color]" % [color.to_html(), str(message) + end]
+	message = str(message)
+	output.text += "[color=#%s]%s[/color]" % [color.to_html(), message + end]
+	new_message.emit(message)
 
 
 func error(message: Variant):
-	write(output_error_form % str(message), color_error)
+	if output_ignore_error:
+		return
+	message = str(message)
+	write(output_format_error % message, color_error)
+	new_error_message.emit(message)
 
 
 func warning(message: Variant):
-	write(output_warning_form % str(message), color_warning)
+	if output_ignore_warning:
+		return
+	message = str(message)
+	write(output_format_warning % str(message), color_warning)
+	new_warning_message.emit(message)
 
 
 func success(message: Variant):
-	write(output_success_form % str(message), color_success)
+	if output_ignore_success:
+		return
+	message = str(message)
+	write(output_format_success % str(message), color_success)
+	new_success_message.emit(message)
 
 
 func read() -> String:
