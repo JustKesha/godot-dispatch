@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ShellCommandColor" format=3 uid="uid://cjqna47mb7c6j"]
+
+[ext_resource type="Script" uid="uid://d2kwam041731q" path="res://prefabs/shell/commands/color.gd" id="1_66wwn"]
+
+[resource]
+script = ExtResource("1_66wwn")
+description = "Sets terminal text color."
+requires_terminal = true
+requires_arguments = 1
+metadata/_custom_type_script = "uid://d2kwam041731q"
