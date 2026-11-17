@@ -1,5 +1,5 @@
 @icon("uid://dhivvk11px2tj")
-class_name Console
+class_name Terminal
 extends Container
 
 
