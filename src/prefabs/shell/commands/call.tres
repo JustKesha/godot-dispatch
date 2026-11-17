@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ShellCommandCall" format=3 uid="uid://bm4da5bhg5oea"]
+
+[ext_resource type="Script" uid="uid://c78e10xjuvsbv" path="res://prefabs/shell/commands/call.gd" id="1_r3tdq"]
+
+[resource]
+script = ExtResource("1_r3tdq")
+description = "Requests a call to all given devices."
+requires_arguments = 1
+execution_time_min = 1.0
+execution_time_max = 3.0
+metadata/_custom_type_script = "uid://c78e10xjuvsbv"

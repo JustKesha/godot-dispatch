@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="ShellCommandPing" format=3 uid="uid://bpsh81mtu88uv"]
+
+[ext_resource type="Script" uid="uid://cucade475i4fm" path="res://prefabs/shell/commands/ping.gd" id="1_pa1nb"]
+
+[resource]
+script = ExtResource("1_pa1nb")
+description = "Pings all given devices."
+requires_arguments = 1
+execution_time_min = 0.5
+execution_time_max = 1.5
+metadata/_custom_type_script = "uid://cucade475i4fm"
