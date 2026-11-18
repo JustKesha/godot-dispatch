@@ -19,15 +19,15 @@ func _ready():
 
 
 func _get_parent_simulation() -> Simulation2D:
-	var parent: Node = null
+	var parent: Node = self.get_parent()
 	
 	while parent:
-		parent = parent.get_parent()
 		if parent is Simulation2D:
 			return parent
+		parent = parent.get_parent()
 	
 	return null
-
+	
 
 func get_command(command_name: String) -> ShellCommand:
 	return commands.get(command_name)
