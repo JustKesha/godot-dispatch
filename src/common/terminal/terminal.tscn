@@ -46,3 +46,4 @@ caret_blink = true
 caret_blink_interval = 0.5
 
 [connection signal="text_submitted" from="Content/Input" to="." method="_on_input_text_submitted"]
+[connection signal="gui_input" from="Content/Input" to="." method="_on_input_gui_input"]

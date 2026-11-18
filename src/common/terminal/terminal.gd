@@ -59,10 +59,16 @@ signal new_message(raw: String)
 	set(value):
 		color_background = value
 		_set_background_color(color_background)
+@export var history_max_size: int = 100
+
 
 @onready var background: ColorRect = %Background
 @onready var output: RichTextLabel = %Output
 @onready var input: LineEdit = %Input
+
+
+var _commands_history: Array[String] = []
+var _history_current_index: int = 0
 
 
 func _ready():
@@ -74,6 +80,33 @@ func _ready():
 	set_output(output_text)
 
 
+func _add_cmd_to_history(new_text: String):
+	if new_text.strip_edges() \
+			and (_commands_history.is_empty() or _commands_history.back() != new_text):
+		
+		_commands_history.append(new_text)
+
+		while _commands_history.size() > history_max_size and history_max_size >= 0:
+			_commands_history.remove_at(0)
+
+	_history_current_index = _commands_history.size()
+
+
+func _get_previous_cmd_from_history() -> String:
+	if _commands_history.is_empty():
+		return ""
+	
+	_history_current_index = maxi(_history_current_index - 1, 0)
+	return _commands_history[_history_current_index]
+
+
+func _get_next_cmd_from_history() -> String:
+	_history_current_index = mini(_history_current_index + 1, _commands_history.size())
+	if _history_current_index >= _commands_history.size():
+		return ""
+	return _commands_history[_history_current_index]
+
+
 func _on_input_text_submitted(new_text: String):
 	if not new_text and not input_submit_allow_empty:
 		return
@@ -81,7 +114,19 @@ func _on_input_text_submitted(new_text: String):
 		set_input("")
 	if input_submit_log:
 		write(input_submit_log_form % new_text)
+	_add_cmd_to_history(new_text) 
 	input_submitted.emit(new_text)
+
+
+func _on_input_gui_input(event: InputEvent) -> void:
+	if event.is_action_pressed("ui_up", true):
+		set_input(_get_previous_cmd_from_history())
+		input.caret_column = input.text.length()
+		input.accept_event()
+	elif event.is_action_pressed("ui_down", true):
+		set_input(_get_next_cmd_from_history())
+		input.caret_column = input.text.length()
+		input.accept_event()
 
 
 func _set_color(color: Color):
