@@ -78,10 +78,10 @@ var _history_current_index: int = 0
 # Rename history_max_size into input_histroy_size_max & pull it up the export list(?)): checked
 # Add input_history export_subgroup: checked
 
-# Remove empty input check (strip)
-# Replace empty string check in _on_input_submitted with a strip check
+# Remove empty input check (strip) : checked
+# Replace empty string check in _on_input_submitted with a strip check : checked
 
-# Merge get...next and get...previous into a single _input_history_step(step: int = 1) -> String: ...
+# Merge get...next and get...previous into a single _input_history_step(step: int = 1) -> String: ...: checked
 
 # Export input action names (input_history_action_next & ..._previous)
 # Add input_history_ingore_consecutive_duplicates export flag
@@ -96,8 +96,7 @@ func _ready():
 
 
 func _add_input_to_history(new_text: String):
-	if new_text.strip_edges() \
-			and (_input_history.is_empty() or _input_history.back() != new_text):
+	if _input_history.is_empty() or _input_history.back() != new_text:
 		
 		_input_history.append(new_text)
 
@@ -107,23 +106,15 @@ func _add_input_to_history(new_text: String):
 	_history_current_index = _input_history.size()
 
 
-func _get_previous_cmd_from_history() -> String:
-	if _input_history.is_empty():
-		return ""
-	
-	_history_current_index = maxi(_history_current_index - 1, 0)
-	return _input_history[_history_current_index]
-
-
-func _get_next_cmd_from_history() -> String:
-	_history_current_index = mini(_history_current_index + 1, _input_history.size())
+func _input_history_step(step: int = 1) -> String:
+	_history_current_index = clampi(_history_current_index + step, 0, _input_history.size())
 	if _history_current_index >= _input_history.size():
 		return ""
 	return _input_history[_history_current_index]
 
 
 func _on_input_text_submitted(new_text: String):
-	if not new_text and not input_submit_allow_empty:
+	if not new_text.strip_edges() and not input_submit_allow_empty:
 		return
 	if input_submit_clear:
 		set_input("")
@@ -135,11 +126,11 @@ func _on_input_text_submitted(new_text: String):
 
 func _on_input_gui_input(event: InputEvent):
 	if event.is_action_pressed("ui_up", true):
-		set_input(_get_previous_cmd_from_history())
+		set_input(_input_history_step(-1))
 		input.caret_column = input.text.length()
 		input.accept_event()
 	elif event.is_action_pressed("ui_down", true):
-		set_input(_get_next_cmd_from_history())
+		set_input(_input_history_step(1))
 		input.caret_column = input.text.length()
 		input.accept_event()
 
