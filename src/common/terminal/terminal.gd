@@ -10,21 +10,22 @@ signal new_warning_message(raw: String)
 signal new_success_message(raw: String)
 signal new_message(raw: String)
 
-@export_group("Input History", "input_history")
-@export var input_history_size_max: int = 100
-@export var input_history_ignore_consecutive_duplicates: bool = true
-@export var input_history_action_next: StringName = &"ui_down"
-@export var input_history_action_previous: StringName = &"ui_up"
 @export_group("Input", "input")
 @export var input_text: String:
 	set(value):
 		input_text = value
 		set_input(input_text)
+@export var input_strip: bool
+@export_subgroup("History", "input_history")
+@export var input_history_limit: int = 100
+@export var input_history_ignore_consecutive_duplicates: bool = true
+@export var input_history_action_next: StringName = &"ui_down"
+@export var input_history_action_previous: StringName = &"ui_up"
 @export_subgroup("Submit", "input_submit")
 @export var input_submit_allow_empty: bool
 @export var input_submit_clear: bool = true
 @export var input_submit_log: bool
-@export var input_submit_log_form: String = ">%s"
+@export var input_submit_log_format: String = ">%s"
 @export_subgroup("Placeholder", "input_placeholder")
 @export var input_placeholder_text: String:
 	set(value):
@@ -65,11 +66,9 @@ signal new_message(raw: String)
 		color_background = value
 		_set_background_color(color_background)
 
-
 @onready var background: ColorRect = %Background
 @onready var output: RichTextLabel = %Output
 @onready var input: LineEdit = %Input
-
 
 var _input_history: Array[String] = []
 var _history_current_index: int = 0
@@ -89,10 +88,10 @@ func _add_input_to_history(new_text: String):
 			(not input_history_ignore_consecutive_duplicates or _input_history.back() != new_text):
 		
 		_input_history.append(new_text)
-
-		while _input_history.size() > input_history_size_max and input_history_size_max >= 0:
+		
+		while _input_history.size() > input_history_limit and input_history_limit >= 0:
 			_input_history.remove_at(0)
-
+	
 	_history_current_index = _input_history.size()
 
 
@@ -106,10 +105,12 @@ func _input_history_step(step: int = 1) -> String:
 func _on_input_text_submitted(new_text: String):
 	if not new_text.strip_edges() and not input_submit_allow_empty:
 		return
+	if input_strip:
+		new_text = new_text.strip_edges()
 	if input_submit_clear:
 		set_input("")
 	if input_submit_log:
-		write(input_submit_log_form % new_text)
+		write(input_submit_log_format % new_text)
 	_add_input_to_history(new_text) 
 	input_submitted.emit(new_text)
 
