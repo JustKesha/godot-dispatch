@@ -12,6 +12,9 @@ signal new_message(raw: String)
 
 @export_group("Input History", "input_history")
 @export var input_history_size_max: int = 100
+@export var input_history_ignore_consecutive_duplicates: bool = true
+@export var input_history_action_next: StringName = &"ui_down"
+@export var input_history_action_previous: StringName = &"ui_up"
 @export_group("Input", "input")
 @export var input_text: String:
 	set(value):
@@ -71,20 +74,6 @@ signal new_message(raw: String)
 var _input_history: Array[String] = []
 var _history_current_index: int = 0
 
-# Flavor changes:
-
-# Rename cmd history to input history: checked
-# Remove -> void (project style): checked
-# Rename history_max_size into input_histroy_size_max & pull it up the export list(?)): checked
-# Add input_history export_subgroup: checked
-
-# Remove empty input check (strip) : checked
-# Replace empty string check in _on_input_submitted with a strip check : checked
-
-# Merge get...next and get...previous into a single _input_history_step(step: int = 1) -> String: ...: checked
-
-# Export input action names (input_history_action_next & ..._previous)
-# Add input_history_ingore_consecutive_duplicates export flag
 
 func _ready():
 	_set_color(color_text)
@@ -96,7 +85,8 @@ func _ready():
 
 
 func _add_input_to_history(new_text: String):
-	if _input_history.is_empty() or _input_history.back() != new_text:
+	if _input_history.is_empty() or \
+			(not input_history_ignore_consecutive_duplicates or _input_history.back() != new_text):
 		
 		_input_history.append(new_text)
 
@@ -125,12 +115,12 @@ func _on_input_text_submitted(new_text: String):
 
 
 func _on_input_gui_input(event: InputEvent):
-	if event.is_action_pressed("ui_up", true):
-		set_input(_input_history_step(-1))
+	if event.is_action_pressed(input_history_action_next, true):
+		set_input(_input_history_step(1))
 		input.caret_column = input.text.length()
 		input.accept_event()
-	elif event.is_action_pressed("ui_down", true):
-		set_input(_input_history_step(1))
+	elif event.is_action_pressed(input_history_action_previous, true):
+		set_input(_input_history_step(-1))
 		input.caret_column = input.text.length()
 		input.accept_event()
 
