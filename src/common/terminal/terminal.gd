@@ -10,6 +10,8 @@ signal new_warning_message(raw: String)
 signal new_success_message(raw: String)
 signal new_message(raw: String)
 
+@export_group("Input History", "input_history")
+@export var input_history_size_max: int = 100
 @export_group("Input", "input")
 @export var input_text: String:
 	set(value):
@@ -59,7 +61,6 @@ signal new_message(raw: String)
 	set(value):
 		color_background = value
 		_set_background_color(color_background)
-@export var history_max_size: int = 100
 
 
 @onready var background: ColorRect = %Background
@@ -67,9 +68,23 @@ signal new_message(raw: String)
 @onready var input: LineEdit = %Input
 
 
-var _commands_history: Array[String] = []
+var _input_history: Array[String] = []
 var _history_current_index: int = 0
 
+# Flavor changes:
+
+# Rename cmd history to input history: checked
+# Remove -> void (project style): checked
+# Rename history_max_size into input_histroy_size_max & pull it up the export list(?)): checked
+# Add input_history export_subgroup: checked
+
+# Remove empty input check (strip)
+# Replace empty string check in _on_input_submitted with a strip check
+
+# Merge get...next and get...previous into a single _input_history_step(step: int = 1) -> String: ...
+
+# Export input action names (input_history_action_next & ..._previous)
+# Add input_history_ingore_consecutive_duplicates export flag
 
 func _ready():
 	_set_color(color_text)
@@ -80,31 +95,31 @@ func _ready():
 	set_output(output_text)
 
 
-func _add_cmd_to_history(new_text: String):
+func _add_input_to_history(new_text: String):
 	if new_text.strip_edges() \
-			and (_commands_history.is_empty() or _commands_history.back() != new_text):
+			and (_input_history.is_empty() or _input_history.back() != new_text):
 		
-		_commands_history.append(new_text)
+		_input_history.append(new_text)
 
-		while _commands_history.size() > history_max_size and history_max_size >= 0:
-			_commands_history.remove_at(0)
+		while _input_history.size() > input_history_size_max and input_history_size_max >= 0:
+			_input_history.remove_at(0)
 
-	_history_current_index = _commands_history.size()
+	_history_current_index = _input_history.size()
 
 
 func _get_previous_cmd_from_history() -> String:
-	if _commands_history.is_empty():
+	if _input_history.is_empty():
 		return ""
 	
 	_history_current_index = maxi(_history_current_index - 1, 0)
-	return _commands_history[_history_current_index]
+	return _input_history[_history_current_index]
 
 
 func _get_next_cmd_from_history() -> String:
-	_history_current_index = mini(_history_current_index + 1, _commands_history.size())
-	if _history_current_index >= _commands_history.size():
+	_history_current_index = mini(_history_current_index + 1, _input_history.size())
+	if _history_current_index >= _input_history.size():
 		return ""
-	return _commands_history[_history_current_index]
+	return _input_history[_history_current_index]
 
 
 func _on_input_text_submitted(new_text: String):
@@ -114,11 +129,11 @@ func _on_input_text_submitted(new_text: String):
 		set_input("")
 	if input_submit_log:
 		write(input_submit_log_form % new_text)
-	_add_cmd_to_history(new_text) 
+	_add_input_to_history(new_text) 
 	input_submitted.emit(new_text)
 
 
-func _on_input_gui_input(event: InputEvent) -> void:
+func _on_input_gui_input(event: InputEvent):
 	if event.is_action_pressed("ui_up", true):
 		set_input(_get_previous_cmd_from_history())
 		input.caret_column = input.text.length()
