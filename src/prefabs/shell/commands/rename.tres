@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ShellCommandRename" format=3 uid="uid://b8xr2k9tdm4nv"]
+
+[ext_resource type="Script" uid="uid://cq3r8n1w7m4ze" path="res://prefabs/shell/commands/rename.gd" id="1_r3tdq"]
+
+[resource]
+script = ExtResource("1_r3tdq")
+description = "Renames a shell command."
+requires_simulation = false
+requires_arguments = 2
+metadata/_custom_type_script = "uid://cq3r8n1w7m4ze"

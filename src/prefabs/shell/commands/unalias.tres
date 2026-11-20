@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="ShellCommandUnalias" format=3 uid="uid://n3wq6v8zk1tlb"]
+
+[ext_resource type="Script" uid="uid://y7m2cp9rq4dhs" path="res://prefabs/shell/commands/unalias.gd" id="1_un1a5"]
+
+[resource]
+script = ExtResource("1_un1a5")
+description = "Removes an alternative name from a shell command."
+requires_simulation = false
+requires_arguments = 1
+metadata/_custom_type_script = "uid://y7m2cp9rq4dhs"
