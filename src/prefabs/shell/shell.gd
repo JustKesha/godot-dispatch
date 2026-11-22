@@ -80,6 +80,22 @@ func add_alias(command_name: String, alias: String) -> bool:
 	return true
 
 
+func remove_alias(alias: String) -> bool:
+	var command := get_command(alias)
+	
+	if not command:
+		return false
+	
+	var names := get_commands().get(command, []) as Array
+	
+	if len(names) <= 1:
+		return false
+	
+	commands.erase(alias)
+	
+	return true
+
+
 func execute(command_name: String, args: Array[Variant] = [], io: Terminal = null) -> bool:
 	var command := get_command(command_name)
 	
