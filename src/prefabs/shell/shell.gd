@@ -27,7 +27,7 @@ func _get_parent_simulation() -> Simulation2D:
 		parent = parent.get_parent()
 	
 	return null
-	
+
 
 func get_command(command_name: String) -> ShellCommand:
 	return commands.get(command_name)
@@ -67,6 +67,18 @@ func rename_command(old_name: String, new_name: String) -> bool:
 	commands[new_name] = command
 	
 	return true
+
+
+func add_alias(command_name: String, alias: String) -> bool:
+	var command := get_command(command_name)
+	
+	if not command or get_command(alias):
+		return false
+	
+	commands[alias] = command
+	
+	return true
+
 
 func execute(command_name: String, args: Array[Variant] = [], io: Terminal = null) -> bool:
 	var command := get_command(command_name)
