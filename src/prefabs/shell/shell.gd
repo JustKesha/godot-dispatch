@@ -52,6 +52,22 @@ func get_commands() -> Dictionary[ShellCommand, Array]:
 	return grouped_commands
 
 
+func rename_command(old_name: String, new_name: String) -> bool:
+	var command := get_command(old_name)
+	
+	if not command or old_name == new_name:
+		return false
+	
+	var existing := get_command(new_name)
+	
+	if existing and existing != command:
+		return false
+	
+	commands.erase(old_name)
+	commands[new_name] = command
+	
+	return true
+
 func execute(command_name: String, args: Array[Variant] = [], io: Terminal = null) -> bool:
 	var command := get_command(command_name)
 	
