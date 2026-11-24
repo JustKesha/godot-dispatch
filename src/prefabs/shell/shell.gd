@@ -27,7 +27,7 @@ func _get_parent_simulation() -> Simulation2D:
 		parent = parent.get_parent()
 	
 	return null
-	
+
 
 func get_command(command_name: String) -> ShellCommand:
 	return commands.get(command_name)
@@ -50,6 +50,50 @@ func get_commands() -> Dictionary[ShellCommand, Array]:
 		)
 	
 	return grouped_commands
+
+
+func rename_command(old_name: String, new_name: String) -> bool:
+	var command := get_command(old_name)
+	
+	if not command or old_name == new_name:
+		return false
+	
+	var existing := get_command(new_name)
+	
+	if existing and existing != command:
+		return false
+	
+	commands.erase(old_name)
+	commands[new_name] = command
+	
+	return true
+
+
+func add_alias(command_name: String, alias: String) -> bool:
+	var command := get_command(command_name)
+	
+	if not command or get_command(alias):
+		return false
+	
+	commands[alias] = command
+	
+	return true
+
+
+func remove_alias(alias: String) -> bool:
+	var command := get_command(alias)
+	
+	if not command:
+		return false
+	
+	var names := get_commands().get(command, []) as Array
+	
+	if len(names) <= 1:
+		return false
+	
+	commands.erase(alias)
+	
+	return true
 
 
 func execute(command_name: String, args: Array[Variant] = [], io: Terminal = null) -> bool:
