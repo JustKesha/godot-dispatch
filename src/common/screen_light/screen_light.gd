@@ -1,4 +1,4 @@
-class_name ScreenLight
+class_name ScreenLight3D
 extends AreaLight3D
 
 
@@ -9,11 +9,10 @@ extends AreaLight3D
 @export var response_energy_multiplier: float = 30
 @export var response_smoothing: float = 8.0
 
-
 var _timer: float
 var _target_color: Color
 var _target_energy: float
-var _ready_to_read: bool = false
+var _ready_to_read: bool
 
 
 func _ready():
@@ -26,6 +25,19 @@ func _ready():
 	light_color = _target_color
 	light_energy = _target_energy
 	_ready_to_read = true
+
+
+func _process(delta):
+	if not _ready_to_read:
+		return
+	_timer += delta
+	if _timer >= source_update_interval:
+		_timer -= source_update_interval
+		var avg := _get_avarege_color()
+		_get_target_color_and_energy(avg)
+	var t := 1.0 - exp(-response_smoothing * delta)
+	light_color = light_color.lerp(_target_color, t)
+	light_energy = lerpf(light_energy, _target_energy, t)
 
 
 func _get_avarege_color() -> Color:
@@ -46,16 +58,3 @@ func _get_target_color_and_energy(avg: Color):
 	else:
 		_target_color = Color(avg.r / peak, avg.g / peak, avg.b / peak)
 		_target_energy = avg.get_luminance() * response_energy_multiplier
-
-
-func _process(delta):
-	if not _ready_to_read:
-		return
-	_timer += delta
-	if _timer >= source_update_interval:
-		_timer -= source_update_interval
-		var avg := _get_avarege_color()
-		_get_target_color_and_energy(avg)
-	var t := 1.0 - exp(-response_smoothing * delta)
-	light_color = light_color.lerp(_target_color, t)
-	light_energy = lerpf(light_energy, _target_energy, t)
