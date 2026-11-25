@@ -45,80 +45,32 @@ func _physics_process(delta: float):
 	elif action_jump and Input.is_action_just_pressed(action_jump):
 		body.velocity.y = speed_jump_velocity
 	
-	handle_movement(delta, grounded)
+	_move(delta, grounded)
 
 	body.move_and_slide()
 
- 
-func handle_movement(delta: float, grounded: bool):
-	var input_dir: Vector2 = get_input_direction()
-	
-	if input_dir == Vector2.ZERO:
-		apply_friction(delta)
-		return
-	
-	var direction: Vector3 = get_movement_direction(input_dir)
-	var target_speed: float = get_target_speed()
-	var accel: float = acceleration if grounded else air_acceleration
-	
-	cancel_perpendicular_velocity(direction)
-	accelerate(direction, target_speed, accel, delta)
- 
- 
-func get_input_direction() -> Vector2:
-	var forward: float = (
-		(Input.get_action_strength(action_move_forward) if action_move_forward else 0.0) -
-		(Input.get_action_strength(action_move_backward) if action_move_backward else 0.0)
-		)
-	var right: float = (
-		(Input.get_action_strength(action_move_right) if action_move_right else 0.0) -
-		(Input.get_action_strength(action_move_left) if action_move_left else 0.0)
-		)
-	return Vector2(right, forward)
- 
- 
-func get_movement_direction(input_dir: Vector2) -> Vector3:
-	var forward: Vector3 = -body.basis.z
-	var right: Vector3 = body.basis.x
-	return (forward * input_dir.y + right * input_dir.x).normalized()
 
+func _move(delta: float, grounded: bool):
+	var input := Input.get_vector(
+		action_move_left, action_move_right,
+		action_move_forward, action_move_backward)
+	var direction := body.global_basis * Vector3(input.x, 0, input.y)
+	var target := direction * _get_target_speed()
 
-func cancel_perpendicular_velocity(direction: Vector3):
-	var current_horiz: Vector3 = Vector3(body.velocity.x, 0, body.velocity.z)
-	var parallel: float = current_horiz.dot(direction)
-	var parallel_vel: Vector3 = direction * parallel
-	var perpendicular: Vector3 = current_horiz - parallel_vel
-	
-	body.velocity.x -= perpendicular.x
-	body.velocity.z -= perpendicular.z
+	var rate: float
+	if input:
+		rate = acceleration if grounded else air_acceleration
+	else:
+		rate = friction if grounded else air_friction
+
+	var horizontal := Vector3(body.velocity.x, 0, body.velocity.z)
+	horizontal = horizontal.move_toward(target, rate * delta)
+	body.velocity.x = horizontal.x
+	body.velocity.z = horizontal.z
 
  
-func get_target_speed() -> float:
+func _get_target_speed() -> float:
 	if action_sprint and Input.is_action_pressed(action_sprint):
 		return speed_sprint
 	return speed_walk
- 
- 
-func accelerate(direction: Vector3, target_speed: float, accel: float, delta: float):
-	var current_horiz: Vector3 = Vector3(body.velocity.x, 0, body.velocity.z)
-	var target_vel: Vector3 = direction * target_speed
-	var diff: Vector3 = target_vel - current_horiz
-	
-	if diff.length() > accel * delta:
-		diff = diff.normalized() * accel * delta
-	
-	body.velocity.x += diff.x
-	body.velocity.z += diff.z
- 
- 
-func apply_friction(delta: float):
-	var current_horiz: Vector3 = Vector3(body.velocity.x, 0, body.velocity.z)
-	
-	if current_horiz.length() < current_friction * delta:
-		body.velocity.x = 0
-		body.velocity.z = 0
-	else:
-		var drop: float = current_friction * delta
-		body.velocity.x -= current_horiz.normalized().x * drop
-		body.velocity.z -= current_horiz.normalized().z * drop
  
