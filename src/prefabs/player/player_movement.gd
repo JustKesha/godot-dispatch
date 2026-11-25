@@ -52,9 +52,10 @@ func _apply_friction(delta: float):
 	body.velocity.z *= scale
 
 
-func _accelerate(wish_dir:Vector3, wish_speed:float, accel:float, delta:float):
+func _accelerate(wish_dir:Vector3, wish_speed:float, speed_cap: float , accel:float, delta:float):
+	var capped_speed := minf(wish_speed, speed_cap)
 	var current_speed := body.velocity.dot(wish_dir)
-	var add_speed := wish_speed - current_speed
+	var add_speed := capped_speed - current_speed
 
 	if add_speed <= 0: return
 
@@ -97,8 +98,7 @@ func _move(delta: float, grounded: bool):
 	var wish_speed := _get_target_speed() * input.length()
 
 	if grounded:
-		_accelerate(wish_dir, wish_speed, acceleration, delta)
+		_accelerate(wish_dir, wish_speed, wish_speed, acceleration, delta)
 	else:
-		var air_wish_speed_cap = minf(wish_speed, speed_air_wish_speed_cap)
-		_accelerate(wish_dir, air_wish_speed_cap, air_acceleration, delta)
+		_accelerate(wish_dir, wish_speed, speed_air_wish_speed_cap, air_acceleration, delta)
  
