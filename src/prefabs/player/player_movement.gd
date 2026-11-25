@@ -26,6 +26,7 @@ extends Node
 @export var action_move_left: String = "ui_left"
 @export var action_move_right: String = "ui_right"
 
+
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
 var current_friction: float
  
@@ -37,30 +38,17 @@ func _ready():
  
  
 func _physics_process(delta: float):
-	if not body:
-		return
-	
-	var grounded: bool = body.is_on_floor()
-	current_friction = friction if grounded else air_friction
-	
-	apply_gravity(delta)
-	handle_jump(grounded)
-	handle_movement(delta, grounded)
-	
-	body.move_and_slide()
- 
- 
-func apply_gravity(delta: float):
-	if not body.is_on_floor():
-		body.velocity.y -= gravity * delta
- 
- 
-func handle_jump(grounded: bool):
+	var grounded := body.is_on_floor()
+
 	if not grounded:
-		return
-	if action_jump and Input.is_action_just_pressed(action_jump):
+		body.velocity += body.get_gravity() * delta
+	elif action_jump and Input.is_action_just_pressed(action_jump):
 		body.velocity.y = speed_jump_velocity
- 
+	
+	handle_movement(delta, grounded)
+
+	body.move_and_slide()
+
  
 func handle_movement(delta: float, grounded: bool):
 	var input_dir: Vector2 = get_input_direction()
