@@ -18,13 +18,13 @@ extends Node
 @export var air_friction: float = 0.5
  
 @export_group("Controls", "action")
-@export var action_jump: String = "ui_accept"
-@export var action_sprint: String = ""
+@export var action_jump: String = "player_jump"
+@export var action_sprint: String = "player_run"
 @export_subgroup("Move", "action_move")
-@export var action_move_forward: String = "ui_up"
-@export var action_move_backward: String = "ui_down"
-@export var action_move_left: String = "ui_left"
-@export var action_move_right: String = "ui_right"
+@export var action_move_forward: String = "player_forward"
+@export var action_move_backward: String = "player_backward"
+@export var action_move_left: String = "player_left"
+@export var action_move_right: String = "player_right"
 
 
 var gravity: float = ProjectSettings.get_setting("physics/3d/default_gravity")
