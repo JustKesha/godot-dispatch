@@ -8,20 +8,19 @@ extends Node
 @export var speed_walk: float = 5.0
 @export var speed_sprint: float = 7.5
 @export var speed_jump_velocity: float = 5.0
-@export var speed_air_wish_speed_cap: float = 0.7
- 
 @export_group("Physics")
 @export_subgroup("Acceleration")
 @export var acceleration: float = 10.0
 @export var air_acceleration: float = 10.0
-@export_subgroup("Friction")
+@export var air_wish_speed_cap: float = 0.7
+@export_subgroup("Stopping Powers")
 @export var friction: float = 4.0
 @export var stop_speed: float = 2.0
- 
 @export_group("Controls", "action")
+@export_subgroup("Abilities")
 @export var action_jump: String = "player_jump"
 @export var action_sprint: String = "player_run"
-@export_subgroup("Move", "action_move")
+@export_subgroup("Movement", "action_move")
 @export var action_move_forward: String = "player_forward"
 @export var action_move_backward: String = "player_backward"
 @export var action_move_left: String = "player_left"
@@ -100,5 +99,5 @@ func _move(delta: float, grounded: bool):
 	if grounded:
 		_accelerate(wish_dir, wish_speed, wish_speed, acceleration, delta)
 	else:
-		_accelerate(wish_dir, wish_speed, speed_air_wish_speed_cap, air_acceleration, delta)
+		_accelerate(wish_dir, wish_speed, air_wish_speed_cap, air_acceleration, delta)
  
