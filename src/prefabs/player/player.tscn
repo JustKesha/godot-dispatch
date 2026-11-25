@@ -44,9 +44,4 @@ mesh = SubResource("CapsuleMesh_ogq8d")
 unique_name_in_owner = true
 script = ExtResource("2_wv1mm")
 body = NodePath("..")
-speed_sprint = 10.0
-speed_jump_velocity = 0.0
-acceleration = 25.0
-air_acceleration = 0.0
-friction = 20.0
-air_friction = 20.0
+
