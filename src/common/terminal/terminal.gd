@@ -9,6 +9,8 @@ signal new_error_message(raw: String)
 signal new_warning_message(raw: String)
 signal new_success_message(raw: String)
 signal new_message(raw: String)
+signal listen_finished()
+
 
 @export_group("Input", "input")
 @export var input_text: String:
@@ -66,12 +68,15 @@ signal new_message(raw: String)
 		color_background = value
 		_set_background_color(color_background)
 
+
 @onready var background: ColorRect = %Background
 @onready var output: RichTextLabel = %Output
 @onready var input: LineEdit = %Input
 
+
 var _input_history: Array[String] = []
 var _history_current_index: int = 0
+var _is_listening: bool = false
 
 
 func _ready():
@@ -243,6 +248,14 @@ func submit(message: Variant = ""):
 	_on_input_text_submitted(message)
 
 
-func listen() -> String:
+func listen(prompt: String = "") -> String:
+	while _is_listening == true:
+		await listen_finished
+
+	_is_listening = true
+	write(prompt)
 	var text: String = await input_submitted
+	
+	_is_listening = false
+	listen_finished.emit()
 	return text
