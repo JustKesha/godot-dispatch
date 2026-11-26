@@ -9,7 +9,8 @@ signal new_error_message(raw: String)
 signal new_warning_message(raw: String)
 signal new_success_message(raw: String)
 signal new_message(raw: String)
-signal listen_finished()
+signal _listen_finished()
+signal _listen_answered(text: String)
 
 @export_group("Input", "input")
 @export var input_text: String:
@@ -67,6 +68,7 @@ signal listen_finished()
 		color_background = value
 		_set_background_color(color_background)
 
+@onready var listen_timer: Timer = %ListenTimer
 @onready var background: ColorRect = %Background
 @onready var output: RichTextLabel = %Output
 @onready var input: LineEdit = %Input
@@ -118,6 +120,9 @@ func _on_input_text_submitted(new_text: String):
 		set_input("")
 	if input_submit_log:
 		write(input_submit_log_format % new_text)
+	if _is_listening:
+		listen_timer.stop()
+		_listen_answered.emit(new_text)
 	_add_input_to_history(new_text) 
 	input_submitted.emit(new_text)
 
@@ -250,25 +255,29 @@ func submit(message: Variant = ""):
 	_on_input_text_submitted(message)
 
 
-func listen(prompt: String = "", color: Color = color_text, end: String = "\n") -> String:
+func listen(prompt: String = "", timeout: float = 0,
+		color: Color = color_text, end: String = "\n") -> String:
 	while _is_listening:
-		await listen_finished
+		await _listen_finished
 	
 	_is_listening = true
 
 	if prompt:
 		write(prompt, color, end)
+
+	if timeout > 0:
+		listen_timer.start(timeout)
 	
-	var text: String = await input_submitted
+	var text: String = await _listen_answered
 	
 	_is_listening = false
-	listen_finished.emit()
+	_listen_finished.emit()
 	return text
 
 
-func confirm(prompt: String = "", require: Array[String] = ["yes", "y"],
+func confirm(prompt: String = "", timeout: float = 0, require: Array[String] = ["yes", "y"],
 		lower: bool = true, color: Color = color_text, end: String = "\n") -> bool:
-	var text: String = await listen(prompt, color, end)
+	var text: String = await listen(prompt, timeout, color, end)
 	
 	text = text.strip_edges()
 	
@@ -276,3 +285,7 @@ func confirm(prompt: String = "", require: Array[String] = ["yes", "y"],
 		text = text.to_lower()
 	
 	return text in require
+
+
+func _on_listen_timer_timeout():
+	_listen_answered.emit("")
