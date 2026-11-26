@@ -11,7 +11,6 @@ signal new_success_message(raw: String)
 signal new_message(raw: String)
 signal listen_finished()
 
-
 @export_group("Input", "input")
 @export var input_text: String:
 	set(value):
@@ -68,15 +67,13 @@ signal listen_finished()
 		color_background = value
 		_set_background_color(color_background)
 
-
 @onready var background: ColorRect = %Background
 @onready var output: RichTextLabel = %Output
 @onready var input: LineEdit = %Input
 
-
-var _input_history: Array[String] = []
-var _history_current_index: int = 0
-var _is_listening: bool = false
+var _input_history: Array[String]
+var _input_history_index: int
+var is_listening: bool
 
 
 func _ready():
@@ -97,14 +94,14 @@ func _add_input_to_history(new_text: String):
 		while _input_history.size() > input_history_limit and input_history_limit >= 0:
 			_input_history.remove_at(0)
 	
-	_history_current_index = _input_history.size()
+	_input_history_index = _input_history.size()
 
 
 func _input_history_step(step: int = 1) -> String:
-	_history_current_index = clampi(_history_current_index + step, 0, _input_history.size())
-	if _history_current_index >= _input_history.size():
+	_input_history_index = clampi(_input_history_index + step, 0, _input_history.size())
+	if _input_history_index >= _input_history.size():
 		return ""
-	return _input_history[_history_current_index]
+	return _input_history[_input_history_index]
 
 
 func _on_input_text_submitted(new_text: String):
@@ -248,14 +245,17 @@ func submit(message: Variant = ""):
 	_on_input_text_submitted(message)
 
 
-func listen(prompt: String = "") -> String:
-	while _is_listening == true:
+func listen(prompt: String = "", color: Color = color_text, end: String = "\n") -> String:
+	while is_listening == true:
 		await listen_finished
 
-	_is_listening = true
-	write(prompt)
+	is_listening = true
+
+	if prompt:
+		write(prompt, color, end)
+		
 	var text: String = await input_submitted
 	
-	_is_listening = false
+	is_listening = false
 	listen_finished.emit()
 	return text
