@@ -73,7 +73,12 @@ signal listen_finished()
 
 var _input_history: Array[String]
 var _input_history_index: int
-var is_listening: bool
+var _is_listening: bool
+var is_listening: bool:
+	get:
+		return _is_listening
+	set(_value):
+		push_error("is_listening is read-only")
 
 
 func _ready():
@@ -246,16 +251,28 @@ func submit(message: Variant = ""):
 
 
 func listen(prompt: String = "", color: Color = color_text, end: String = "\n") -> String:
-	while is_listening == true:
+	while _is_listening:
 		await listen_finished
-
-	is_listening = true
+	
+	_is_listening = true
 
 	if prompt:
 		write(prompt, color, end)
-		
+	
 	var text: String = await input_submitted
 	
-	is_listening = false
+	_is_listening = false
 	listen_finished.emit()
 	return text
+
+
+func confirm(prompt: String = "", require: Array[String] = ["yes", "y"],
+		lower: bool = true, color: Color = color_text, end: String = "\n") -> bool:
+	var text: String = await listen(prompt, color, end)
+	
+	text = text.strip_edges()
+	
+	if lower:
+		text = text.to_lower()
+	
+	return text in require
