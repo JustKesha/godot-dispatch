@@ -9,6 +9,8 @@ signal new_error_message(raw: String)
 signal new_warning_message(raw: String)
 signal new_success_message(raw: String)
 signal new_message(raw: String)
+signal _listen_finished()
+signal _listen_answered(text: String)
 
 @export_group("Input", "input")
 @export var input_text: String:
@@ -66,12 +68,19 @@ signal new_message(raw: String)
 		color_background = value
 		_set_background_color(color_background)
 
+@onready var listen_timer: Timer = %ListenTimer
 @onready var background: ColorRect = %Background
 @onready var output: RichTextLabel = %Output
 @onready var input: LineEdit = %Input
 
-var _input_history: Array[String] = []
-var _history_current_index: int = 0
+var _input_history: Array[String]
+var _input_history_index: int
+var _is_listening: bool
+var is_listening: bool:
+	get:
+		return _is_listening
+	set(_value):
+		push_error("is_listening is read-only")
 
 
 func _ready():
@@ -92,14 +101,14 @@ func _add_input_to_history(new_text: String):
 		while _input_history.size() > input_history_limit and input_history_limit >= 0:
 			_input_history.remove_at(0)
 	
-	_history_current_index = _input_history.size()
+	_input_history_index = _input_history.size()
 
 
 func _input_history_step(step: int = 1) -> String:
-	_history_current_index = clampi(_history_current_index + step, 0, _input_history.size())
-	if _history_current_index >= _input_history.size():
+	_input_history_index = clampi(_input_history_index + step, 0, _input_history.size())
+	if _input_history_index >= _input_history.size():
 		return ""
-	return _input_history[_history_current_index]
+	return _input_history[_input_history_index]
 
 
 func _on_input_text_submitted(new_text: String):
@@ -111,6 +120,9 @@ func _on_input_text_submitted(new_text: String):
 		set_input("")
 	if input_submit_log:
 		write(input_submit_log_format % new_text)
+	if _is_listening:
+		listen_timer.stop()
+		_listen_answered.emit(new_text)
 	_add_input_to_history(new_text) 
 	input_submitted.emit(new_text)
 
@@ -243,6 +255,37 @@ func submit(message: Variant = ""):
 	_on_input_text_submitted(message)
 
 
-func listen() -> String:
-	var text: String = await input_submitted
+func listen(prompt: String = "", timeout: float = 0,
+		color: Color = color_text, end: String = "\n") -> String:
+	while _is_listening:
+		await _listen_finished
+	
+	_is_listening = true
+
+	if prompt:
+		write(prompt, color, end)
+
+	if timeout > 0:
+		listen_timer.start(timeout)
+	
+	var text: String = await _listen_answered
+	
+	_is_listening = false
+	_listen_finished.emit()
 	return text
+
+
+func confirm(prompt: String = "", timeout: float = 0, require: Array[String] = ["yes", "y"],
+		lower: bool = true, color: Color = color_text, end: String = "\n") -> bool:
+	var text: String = await listen(prompt, timeout, color, end)
+	
+	text = text.strip_edges()
+	
+	if lower:
+		text = text.to_lower()
+	
+	return text in require
+
+
+func _on_listen_timer_timeout():
+	_listen_answered.emit("")

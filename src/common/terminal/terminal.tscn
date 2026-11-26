@@ -13,6 +13,10 @@ offset_right = 256.0
 offset_bottom = 256.0
 script = ExtResource("1_p772f")
 
+[node name="ListenTimer" type="Timer" parent="." unique_id=1734412305]
+unique_name_in_owner = true
+one_shot = true
+
 [node name="Background" type="ColorRect" parent="." unique_id=1459110575]
 unique_name_in_owner = true
 layout_mode = 2
@@ -45,5 +49,6 @@ virtual_keyboard_show_on_focus = false
 caret_blink = true
 caret_blink_interval = 0.5
 
+[connection signal="timeout" from="ListenTimer" to="." method="_on_listen_timer_timeout"]
 [connection signal="gui_input" from="Content/Input" to="." method="_on_input_gui_input"]
 [connection signal="text_submitted" from="Content/Input" to="." method="_on_input_text_submitted"]
